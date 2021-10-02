@@ -1,0 +1,16 @@
+/* src/content.css */
+.react-extension {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; 
+}
+
+.react-extension .game {
+  transform: scale(0.6);
+  position: absolute;
+  height: 216px;
+  pointer-events: auto; 
+}

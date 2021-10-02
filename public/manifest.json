@@ -1,0 +1,28 @@
+{
+  "name": "My Extension",
+  "version": "1.0",
+  "manifest_version": 2,
+  "browser_action": {
+    "default_popup": "index.html"
+  },
+  "icons": {
+    "16": "head.png",
+    "48": "head.png",
+    "128": "head.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "css": [
+        "static/css/content.css"
+      ],
+      "run_at": "document_idle",
+      "js": [
+        "/static/js/content.js"
+      ]
+    }
+  ]
+}
