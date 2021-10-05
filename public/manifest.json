@@ -17,11 +17,11 @@
         "https://*/*"
       ],
       "css": [
-        "static/css/content.css"
+        "static/css/contents.css"
       ],
       "run_at": "document_idle",
       "js": [
-        "/static/js/content.js"
+        "/static/js/contents.js"
       ]
     }
   ]

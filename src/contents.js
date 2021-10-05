@@ -27,6 +27,11 @@ const charsProps = {
 const ContentReact = () => {
   const [hat, setHat] = useState(null);
   useEffect(() => {
+    console.log(chrome)
+    if(!chrome.runtime){
+      console.log('currently not running as chrome extension');
+      return;
+    }
     chrome.runtime.onMessage.addListener(
       function(request, sender, sendResponse) {
           console.log(sender.tab ?

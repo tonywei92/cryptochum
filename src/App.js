@@ -1,5 +1,4 @@
 /*global chrome*/
-import logo from './logo.svg';
 import './App.css';
 import hatCowboy from './assets/accessories/hat_cowboy.png';
 import hatParty from './assets/accessories/hat_party.png';
@@ -13,6 +12,11 @@ const hats = {
 
 function App() {
   const onItemClick = (key) => {
+    if(!chrome.tabs){
+      console.log('currently not running as chrome extension');
+      return;
+    }
+
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       console.log('send message from popup', key)
       chrome.tabs.sendMessage(tabs[0].id, {hat: key}, function(response) {
