@@ -4,7 +4,7 @@ import { NFTStorage, File } from 'nft.storage'
 import { fileURLToPath } from 'url';
 
 const endpoint = 'https://api.nft.storage' // the default
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk2NjhiNzE0YzlDNkIzODBkMGJERUZBNjBBRTFjQTk2NkY3M2MwNDIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYzMzQ3NjE0NTgxMCwibmFtZSI6ImV4LW1hY2hpbmEifQ.y_QwV6wSobdFWNdUlpUcxLzwJ8LguJWpOBTkSNswl4M' // your API key from https://nft.storage/manage
+const token = '' // your API key from https://nft.storage/manage
 const storage = new NFTStorage({ endpoint, token })
 
 async function uploadImages(fileName, callback) {
