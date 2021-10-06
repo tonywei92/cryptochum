@@ -7,7 +7,7 @@ const endpoint = 'https://api.nft.storage' // the default
 const token = '' // your API key from https://nft.storage/manage
 const storage = new NFTStorage({ endpoint, token })
 
-async function uploadImages(fileName, callback) {
+async function uploadImages(fileName, idx, callback) {
   const metadata = await storage.store({
     name: `${fileName}`,
     description:
@@ -16,10 +16,12 @@ async function uploadImages(fileName, callback) {
       type: 'image/png',
     })
   })
+
+  console.log('Uploaded: ' , fileName, metadata.embed().image.href, idx);
   callback({
     name: fileName,
     http_link: metadata.embed().image.href,
-    ifps_link: metadata.url
+    ifps_link: metadata.data.image.href
   }); 
 }
 
@@ -47,7 +49,7 @@ async function main() {
             reject('Unable to scan directory: ' + err);
         } 
         for (let i = 0; i < files.length; i += 1) {
-          await uploadImages(files[i], (response) => {
+          await uploadImages(files[i], i + 1, (response) => {
             result.push(response);
           }); 
         }

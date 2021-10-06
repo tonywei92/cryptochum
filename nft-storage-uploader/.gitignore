@@ -3,3 +3,4 @@ node_modules
 
 yarn.lock
 results.json
+.DS_Store
