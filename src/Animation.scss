@@ -1,0 +1,55 @@
+.char-canvas {
+  width: 50px;
+  background-repeat: no-repeat;
+  background-size: 350px 292px;
+  background-position: 0px -76px;
+  animation: play 0.8s steps(3) infinite;
+  image-Rendering: pixelated;
+}
+@keyframes play {
+  100% {
+    background-position: -150px -76px;
+  }
+}
+
+
+.char-canvas-large {
+  width: 100px;
+  height: 130px;
+  background-repeat: no-repeat;
+  background-size: 750px 643px;
+  image-Rendering: pixelated;
+}
+
+.char-canvas-large__idle {
+  background-position: 0px -190px;
+  animation: idle 0.8s steps(4) infinite;
+}
+
+.char-canvas-large__running {
+  background-position: 0px -350px;
+  animation: running-2 0.8s steps(4) infinite;
+}
+
+.char-canvas-large__jumping {
+  background-position: 0px -510px;
+  animation: jumping 0.8s steps(7) infinite;
+}
+
+@keyframes idle {
+  100% {
+    background-position: -430px -190px;
+  }
+}
+
+@keyframes running-2 {
+  100% {
+    background-position: -430px -350px;
+  }
+}
+
+@keyframes jumping {
+  100% {
+    background-position: -750px -510px;
+  }
+}

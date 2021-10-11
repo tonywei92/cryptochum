@@ -3,31 +3,13 @@
 import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 import anime from 'animejs/lib/anime.es.js';
+import './index.css';
 import "./content.css";
-import body from './assets/characters/boy_1/body1.png';
-import head from './assets/characters/boy_1/head1.png';
-import arm from './assets/characters/boy_1/arm.png';
-
-import hatCowboy from './assets/accessories/hat_cowboy.png';
-import hatParty from './assets/accessories/hat_party.png';
-import hatChef from './assets/accessories/hat_chef.png';
-
-const hats = {
-  cowboy: hatCowboy,
-  party: hatParty,
-  chef: hatChef
-};
-
-const charsProps = {
-  headHeight: 100,
-  bodyHeight: 200,
-  armHeight: 100
-}
+import './Animation.scss';
 
 const ContentReact = () => {
-  const [hat, setHat] = useState(null);
+  const [file, setFile] = useState(null);
   useEffect(() => {
-    console.log(chrome)
     if(!chrome.runtime){
       console.log('currently not running as chrome extension');
       return;
@@ -38,8 +20,9 @@ const ContentReact = () => {
                   "from a content script:" + sender.tab.url :
                   "from the extension");
   
-          if (request.hasOwnProperty('hat')){
-            setHat(hats[request.hat])
+          if (request.hasOwnProperty('file')){
+            console.log(request)
+            setFile(request.file)
           }
     });
   })
@@ -74,12 +57,20 @@ const ContentReact = () => {
     return (
       <div className={'react-extension'}>
         <div className="game" style={{bottom:0}}>
-          <div style={{position:'relative', width: '200px'}}>
-            <img src={arm} alt='left_arm' className="react-extension__left_arm" style={{position: 'absolute', top: (charsProps.headHeight + 10) + 'px', left: 0, height: charsProps.armHeight + 'px'}} />
+          <div style={{position:'relative'}}>
+            {/* <img src={arm} alt='left_arm' className="react-extension__left_arm" style={{position: 'absolute', top: (charsProps.headHeight + 10) + 'px', left: 0, height: charsProps.armHeight + 'px'}} />
             <img src={arm} alt='right_arm' className="react-extension__right_arm" style={{position: 'absolute', top: (charsProps.headHeight + 10) + 'px', right: 0, height: charsProps.armHeight + 'px', transform: 'scaleX(-1)'}} />
             <img src={body} alt='bo123' className="react-extension__body" style={{position: 'absolute', top: '90px', marginLeft: 'auto', marginRight: 'auto', left: 0, right:0, height: charsProps.bodyHeight + 'px'}}/>
             <img src={head} alt='he123' className="react-extension__head" style={{position: 'absolute', marginLeft: 'auto', marginRight: 'auto', left: 0, right:0, height: charsProps.headHeight + 'px', zIndex:100}} />
-            {hat && <div style={{position: 'absolute', top: '-260px', zIndex: 10000, width: '150px', marginLeft: 'auto', marginRight: 'auto', left: 0, right:0, height: '300px '}}><img src={hat} style={{width: '100%', position: 'absolute', 'bottom': 0}} alt='hat' className="react-extension__hat" /></div>}
+            {hat && <div style={{position: 'absolute', top: '-260px', zIndex: 10000, width: '150px', marginLeft: 'auto', marginRight: 'auto', left: 0, right:0, height: '300px '}}><img src={hat} style={{width: '100%', position: 'absolute', 'bottom': 0}} alt='hat' className="react-extension__hat" /></div>} */}
+            { file && <div className="char-canvas-large char-canvas-large__running h-20" style={
+            {
+              // height: "99px",
+              backgroundImage: `url(${file.http_link})`,
+
+            }
+          }></div>}
+            
           </div>
         </div>
       </div>
