@@ -37,7 +37,6 @@ function App() {
           <div key={file.name} className="w-1/3 flex items-center justify-center px-2 border border-transparent hover:border-blue-300 cursor-pointer transition-none" onClick={() => onItemClick(file)}>
             <div className="p-1 char-canvas" style={
               {
-                height: '76px',
                 backgroundImage: `url(${file.http_link})`,
               }
             }>

@@ -8,7 +8,16 @@
   pointer-events: none; 
 }
 
+.react-extension .menu {
+  position: absolute;
+  pointer-events: auto; 
+}
+
 .react-extension .game {
   position: absolute;
   pointer-events: auto; 
+}
+
+.react-extension .game .char-canvas-large {
+  cursor: url('https://tonywei92.github.io/fresh-data/cursor_smallest.png'), default;
 }
