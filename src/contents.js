@@ -1,9 +1,9 @@
 /* src/content.js */
 /*global chrome*/
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { throttle } from 'lodash';
 import ReactDOM from 'react-dom';
-import anime from 'animejs/lib/anime.es.js';
+import { motion, useAnimation } from "framer-motion"
 import './index.css';
 import "./content.css";
 import './Animation.scss';
@@ -21,10 +21,12 @@ const FEELING_DEPRESSED = 'depressed';
 const FEELING_HUNGRY = 'hungry';
 
 const ContentReact = () => {
-  const gameRef = useRef()
-  const charEmotionRef = useRef()
-  const charLoveRef = useRef()
   const [file, setFile] = useState(null);
+
+  const charControls = useAnimation()
+  const charLoveControls = useAnimation()
+  const charEmotionControls = useAnimation()
+
   const [characterProp, setCharacterProp] = useState({
     state: STATE_IDLE,
     direction: DIRECTION_RIGHT,
@@ -32,71 +34,98 @@ const ContentReact = () => {
     emotion: "😶",
     stats: {
       fun: 0,
+      health: 0,
       hunger: 0,
-
+      cleanliness: 0,
+      bladder: 0,
     }
   });
 
   const throttleSetCharacterProp = useMemo(
-    () => throttle(() => {
+    () => throttle(async () => {
       setCharacterProp((states) => {
+        console.log(states.stats.fun, (states.stats.fun + 1) > 3 ? FEELING_HAPPY : FEELING_SAD)
         return {
           ...states,
+          feeling: (states.stats.fun + 1) > 3 ? FEELING_HAPPY : FEELING_SAD,
           stats: {
             ...states.stats,
             fun: states.stats.fun + 1,
-            feeling: (states.stats.fun + 1) > 10 ? FEELING_HAPPY : FEELING_SAD
           }
         }
       })
 
-      return anime({
-        targets: charLoveRef.current,
-        keyframes: [
-          { opacity: 0, duration: 250 },
-          { opacity: 1, duration: 500 },
-          { opacity: 0, duration: 250 },
-        ],
-        easing: "linear",
+      await charLoveControls.start((custom, current) => {
+        return {
+          ...current,
+          opacity: 1,
+          transition: { ease: "linear" },
+        }
+      })
+
+      return await charLoveControls.start((custom, current) => {
+        return {
+          ...current,
+          opacity: 0,
+          transition: { ease: "linear" },
+        }
       })
 
     }, 3000)
     , []);
 
 
-  const showEmotion = () => {
-    // const emotion = emotion_map[characterProp.feeling][Math.floor(Math.random() * emotion_map[characterProp.feeling].length)];
-    // setCharacterProp(states => ({
-    //   ...states,
-    //   emotion,
-    // }))
-    return anime({
-      targets: charEmotionRef.current,
-      opacity: 0,
-      direction: "alternate",
-      easing: "linear",
-      loop: true,
-      duration: 1000,
-      // loopComplete: function (anim) {
-      //   // setCharacterProp(states => {
-      //   //   const emotion = emotion_map[states.feeling][Math.floor(Math.random() * emotion_map[states.feeling].length)];
-      //   //   return {
-      //   //     ...states,
-      //   //     emotion,
-      //   //   }
-      //   // })
-      // }
-      // complete: function (anim) {
-      //   console.log('completed')
-      //   showEmotion();
-      // }
+  const showEmotion = async () => {
+    console.log('step', 1)
+    await charEmotionControls.start((custom, current) => {
+      return {
+        ...current,
+        opacity: 1,
+        transition: {
+          ease: "linear",
+          duration: 0.01,
+        }
+      }
     })
+    console.log('step', 2)
+    await charEmotionControls.start((custom, current) => {
+      return {
+        ...current,
+        opacity: 0,
+        transition: {
+          delay: 1,
+          ease: "linear",
+          duration: 0.01,
+        }
+      }
+    })
+    console.log('step', 3)
+
+    await charEmotionControls.start((custom, current) => {
+      return {
+        ...current,
+        opacity: 1,
+        transition: {
+          delay: 5,
+          ease: "linear",
+          duration: 0.01,
+        }
+      }
+    })
+    setCharacterProp(states => {
+      const emotion = emotion_map[states.feeling][Math.floor(Math.random() * emotion_map[states.feeling].length)];
+      return {
+        ...states,
+        emotion,
+      }
+    })
+    showEmotion();
   }
 
 
 
   const emotion_map = {
-    [FEELING_HAPPY]: ["☺️", "😍", "🤗", "🤩"],
+    [FEELING_HAPPY]: ["😍", "🤗", "🤩"],
     [FEELING_SAD]: ["😔", "🥺", "😕"]
   }
 
@@ -124,19 +153,28 @@ const ContentReact = () => {
           setFile(request.file)
         }
       });
-  })
+  }, [])
 
-  const animDrop = (callback) => {
-    anime({
-      targets: gameRef.current,
-      bottom: [window.innerHeight, 0],
-      easing: 'spring(1, 80, 10, 0)',
-      complete: function (anim) {
-        if (callback) {
-          callback();
-        }
+  const animDrop = async (callback) => {
+    await charControls.start((custom, current) => ({
+      ...current,
+      left: 0,
+      bottom: window.innerHeight,
+    }))
+
+    await charControls.start((custom, current) => {
+      return {
+        ...current,
+        bottom: 0,
+        transition: {
+          type: "spring",
+          stiffness: 100
+        },
       }
-    });
+    })
+    if (callback) {
+      callback();
+    }
   }
 
   const animIdling = (callback) => {
@@ -189,46 +227,54 @@ const ContentReact = () => {
     }
   }
 
-  const animJumping = (callback) => {
+  const animJumping = async (callback) => {
     const { direction, runningLength } = getSafeMovingProp(100);
     setCharacterProp((states) => ({
       ...states,
       state: STATE_FREEZE,
       direction,
     }));
-    anime({
-      targets: gameRef.current,
-      easing: 'linear',
-      // duration: Math.abs(runningLength*5),
-      left: {
-        value: `+=${runningLength}`,
-        duration: Math.abs(runningLength * 10),
-        delay: 0,
-      },
-      bottom: [
-        {
-          value: '+=100',
-          duration: 500,
-          delay: 0,
-          easing: 'easeOutCubic'
-        },
-        {
-          value: '-=100',
-          duration: 500,
-          delay: 0,
-          easing: 'easeInQuad'
-        }
-      ],
-      changeComplete: function (anim) {
-        if (callback) {
-          callback();
+
+
+    charControls.start((custom, current) => {
+      console.log("current", current)
+      return {
+        ...current,
+        left: current.left + runningLength,
+        transition: {
+          duration: Math.abs(runningLength / 100),
+          ease: 'linear'
         }
       }
-    });
+    })
+
+    await charControls.start((custom, current) => {
+      return {
+        ...current,
+        bottom: current.bottom + 100,
+        transition: {
+          easing: 'easeOutCubic'
+        }
+      }
+    })
+
+    await charControls.start((custom, current) => {
+      return {
+        ...current,
+        bottom: current.bottom - 100,
+        transition: {
+          easing: 'easeInQuad'
+        }
+      }
+    })
+
+    if (callback) {
+      callback();
+    }
   }
 
 
-  const animRunning = (callback) => {
+  const animRunning = async (callback) => {
     const { direction, runningLength } = getSafeMovingProp();
 
     setCharacterProp((states) => ({
@@ -236,17 +282,21 @@ const ContentReact = () => {
       direction,
       state: STATE_RUNNING
     }));
-    anime({
-      easing: 'linear',
-      targets: gameRef.current,
-      left: `+=${runningLength}`,
-      duration: Math.abs(runningLength * 10),
-      changeComplete: function (anim) {
-        if (callback) {
-          callback();
+
+    await charControls.start((custom, current) => {
+      console.log("current", current)
+      return {
+        ...current,
+        left: current.left + runningLength,
+        transition: {
+          duration: Math.abs(runningLength / 100),
+          ease: 'linear'
         }
       }
-    });
+    })
+    if (callback) {
+      callback();
+    }
   }
 
   const randomBehaviour = () => {
@@ -274,37 +324,33 @@ const ContentReact = () => {
     animDrop(randomBehaviour);
   }
 
-  useEffect(() => {
-    // anime({
-    //   targets: '.react-extension__head',
-    //   translateY: 2,
-    //   loop: true,
-    //   easing: 'easeInOutSine',
-    //   direction: 'alternate'
-    // });
-
-    // anime({
-    //   targets: '.react-extension__left_arm, .react-extension__right_arm',
-    //   rotate: '5deg',
-    //   loop: true,
-    //   easing: 'easeInOutSine',
-    //   direction: 'alternate'
-    // });
-  }, [])
   return (
     <div className={'react-extension'}>
-      <div className="menu top-0 right-0">
-        <ul>
-          <li>
-            <button onClick={summon}>Summon first chars</button>
-            <div>{characterProp.state}</div>
-            <div>
-              fun: {characterProp.stats.fun}
-            </div>
-          </li>
-        </ul>
+      <div className="menu top-0 right-0 text-sm transition-all">
+        <button onClick={summon} className="rounded px-3 py-2 bg-blue-200 border border-blue-400">Summon char</button>
+        <div className="flex items-center mb-2">
+          <div className="w-20">anim state</div> {characterProp.state}
+        </div>
+        <div className="flex items-center mb-2">
+          <div className="w-20">feeling</div> {characterProp.feeling}
+        </div>
+        <div className="flex items-center mb-2">
+          <div className="w-20">fun</div>&nbsp;<div className="w-64 h-4 bg-green-50 rounded"><div className="bg-green-500 h-full" style={{width:characterProp.stats.fun + "%"}}></div></div>&nbsp;{characterProp.stats.fun + "%"}
+        </div>
+        <div className="flex items-center mb-2">
+          <div className="w-20">hunger</div>&nbsp;<div className="w-64 h-4 bg-green-50 rounded"><div className="bg-green-500 h-full" style={{width:characterProp.stats.hunger + "%"}}></div></div>&nbsp;{characterProp.stats.hunger + "%"}
+        </div>
+        <div className="flex items-center mb-2">
+          <div className="w-20">health</div>&nbsp;<div className="w-64 h-4 bg-green-50 rounded"><div className="bg-green-500 h-full" style={{width:characterProp.stats.health + "%"}}></div></div>&nbsp;{characterProp.stats.health + "%"}
+        </div>
+        <div className="flex items-center mb-2">
+          <div className="w-20">cleanliness</div>&nbsp;<div className="w-64 h-4 bg-green-50 rounded"><div className="bg-green-500 h-full" style={{width:characterProp.stats.cleanliness + "%"}}></div></div>&nbsp;{characterProp.stats.cleanliness + "%"}
+        </div>
+        <div className="flex items-center mb-2">
+          <div className="w-20">bladder</div>&nbsp;<div className="w-64 h-4 bg-green-50 rounded"><div className="bg-green-500 h-full" style={{width:characterProp.stats.bladder + "%"}}></div></div>&nbsp;{characterProp.stats.bladder + "%"}
+        </div>
       </div>
-      <div className="game" style={{ bottom: 0 }} ref={gameRef}>
+      <motion.div className="game" animate={charControls} style={{ left: "-300px", bottom: (window.innerHeight + 300) + "px" }}>
         <div style={{ position: 'relative' }}>
           {/* <img src={arm} alt='left_arm' className="react-extension__left_arm" style={{position: 'absolute', top: (charsProps.headHeight + 10) + 'px', left: 0, height: charsProps.armHeight + 'px'}} />
             <img src={arm} alt='right_arm' className="react-extension__right_arm" style={{position: 'absolute', top: (charsProps.headHeight + 10) + 'px', right: 0, height: charsProps.armHeight + 'px', transform: 'scaleX(-1)'}} />
@@ -316,17 +362,17 @@ const ContentReact = () => {
               backgroundImage: `url(${file.http_link})`,
             }
           }></div>}
-          <span className="absolute" ref={charEmotionRef} style={{ width: '50px', top: 0, right: '-50px' }}>
+          <motion.span className="absolute" animate={charEmotionControls} style={{ width: '50px', top: 0, right: '-50px' }}>
             <div className="relative">
               <img src="https://tonywei92.github.io/fresh-data/bubble_text.png" alt="bubble-text" />
               <div className="absolute inset-0 flex items-center justify-center" style={{ top: '-16px' }}>
                 <div>{characterProp.emotion}</div>
               </div>
             </div>
-          </span>
-          <span className="absolute" ref={charLoveRef} style={{ top: 0, left: 0, opacity: 0 }}>❤️</span>
+          </motion.span>
+          <motion.span className="absolute" animate={charLoveControls} style={{ top: 0, left: 0, opacity: 0 }}>❤️</motion.span>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }
