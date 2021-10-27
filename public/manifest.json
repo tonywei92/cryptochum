@@ -10,19 +10,15 @@
     "48": "head.png",
     "128": "head.png"
   },
+  "background": {
+    "scripts": ["background.js"]
+  },
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "css": [
-        "static/css/contents.css"
-      ],
+      "matches": ["http://*/*", "https://*/*"],
+      "css": ["static/css/contents.css"],
       "run_at": "document_idle",
-      "js": [
-        "/static/js/contents.js"
-      ]
+      "js": ["/static/js/contents.js"]
     }
   ]
 }
