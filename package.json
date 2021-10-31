@@ -1,0 +1,54 @@
+{
+  "name": "cryptochum-chrome-extension",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "animejs": "^3.2.1",
+    "axios": "^0.22.0",
+    "framer-motion": "^4.1.17",
+    "lodash": "^4.17.21",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "react-usestateref": "^1.0.8",
+    "rewire": "^5.0.0",
+    "sass": "^1.42.1",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "TAILWIND_MODE=watch react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.158",
+    "autoprefixer": "^9",
+    "customize-cra": "^1.0.0",
+    "postcss": "^7",
+    "react-app-rewire-disable-chunks": "^0.0.1",
+    "react-app-rewired": "^2.1.8"
+  }
+}

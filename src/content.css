@@ -1,0 +1,23 @@
+/* src/content.css */
+.react-extension {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; 
+}
+
+.react-extension .menu {
+  position: absolute;
+  pointer-events: auto; 
+}
+
+.react-extension .game {
+  position: absolute;
+  pointer-events: auto; 
+}
+
+.react-extension .game .char-canvas-large {
+  cursor: url('https://tonywei92.github.io/fresh-data/cursor_smallest.png'), default;
+}

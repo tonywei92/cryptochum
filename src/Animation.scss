@@ -1,0 +1,98 @@
+$charH: 24;
+$charW: 16;
+
+$extension_scale_canvas: 3;
+$animation_count: 4;
+
+$extension_canvas_width: calc($charW * $extension_scale_canvas);
+$extension_canvas_height: calc(($charW * $extension_scale_canvas) * ($charH / $charW));
+$extension_background_size_width: 0;
+$extension_background_size_height: 0;
+
+$animation_freeze_index: 1;
+$animation_freeze_frames_count: 1;
+
+$animation_idle_index: 2;
+$animation_idle_frames_count: 4;
+
+$animation_jumping_index: 4;
+$animation_jumping_frames_count: 7;
+
+$animation_running_index: 3;
+$animation_running_frames_count: 4;
+
+$dom_scale_canvas: 4;
+
+$dom_canvas_width: calc($charW * $dom_scale_canvas);
+$dom_canvas_height: calc(($charW * $dom_scale_canvas) * ($charH / $charW));
+
+
+.char-canvas {
+  width: $extension_canvas_width + px;
+  height: $extension_canvas_height + px;
+  background-repeat: no-repeat;
+  background-size: auto ($extension_canvas_height * $animation_count) + px;
+  background-position: 0px ($extension_canvas_height * ($animation_idle_index - 1) * -1) + px;
+  animation: idle 1s steps($animation_idle_index) infinite;
+  image-Rendering: pixelated;
+}
+
+@keyframes idle {
+  100% {
+    background-position: calc($animation_idle_frames_count * $extension_canvas_width * -1)+px calc($extension_canvas_height * ($animation_idle_index - 1) * -1) + px;
+  }
+}
+// ---------------------------------
+
+@function top_anim_start($dom_canvas_height, $animation_running_index) {
+  @return $dom_canvas_height * ($animation_running_index - 1) * -1;
+}
+
+@function left_anim_end($animation_frames_count, $dom_canvas_width) {
+  @return $animation_frames_count * ($dom_canvas_width) * -1;
+}
+
+.char-canvas-large {
+  width: $dom_canvas_width + px;
+  height: $dom_canvas_height + px;
+  background-repeat: no-repeat;
+  background-size: auto ($dom_canvas_height * $animation_count) + px;
+  image-Rendering: pixelated;
+}
+
+.char-canvas-large__freeze {
+  background-position: 0px top_anim_start($dom_canvas_height, $animation_freeze_index)+px;
+}
+
+.char-canvas-large__idle {
+  background-position: 0px top_anim_start($dom_canvas_height, $animation_idle_index)+px;
+  animation: idle2 0.8s steps($animation_idle_frames_count) infinite;
+}
+
+.char-canvas-large__running {
+  background-position: 0px top_anim_start($dom_canvas_height, $animation_running_index)+px;
+  animation: running-2 0.8s steps($animation_running_frames_count) infinite;
+}
+
+.char-canvas-large__jumping {
+  background-position: 0px top_anim_start($dom_canvas_height, $animation_jumping_index)+px;;
+  animation: jumping 0.8s steps($animation_jumping_frames_count) infinite;
+}
+
+@keyframes idle2 {
+  100% {
+    background-position: left_anim_end($animation_idle_frames_count, $dom_canvas_width)+px top_anim_start($dom_canvas_height, $animation_idle_index)+px;
+  }
+}
+
+@keyframes running-2 {
+  100% {
+    background-position: left_anim_end($animation_running_frames_count, $dom_canvas_width)+px top_anim_start($dom_canvas_height, $animation_running_index)+px;
+  }
+}
+
+@keyframes jumping {
+  100% {
+    background-position: left_anim_end($animation_jumping_frames_count, $dom_canvas_width)+px top_anim_start($dom_canvas_height, $animation_jumping_index)+px;
+  }
+}
