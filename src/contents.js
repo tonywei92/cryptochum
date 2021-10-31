@@ -55,6 +55,7 @@ const ContentReact = () => {
   const carrotControl = useAnimation()
   const charLoveControls = useAnimation()
   const charEmotionControls = useAnimation()
+  const [address, setAddress, addressRef] = useState(null)
   const [destroyedElements, setDestroyedElements] = useState([]);
   const stealContainer = useRef();
 
@@ -190,7 +191,12 @@ const ContentReact = () => {
             }
           }
           sendMessage({ type: messageConstants.STATS, stats: characterProp.stats })
+          console.log('send to queue', {
+            recipient: addressRef.current,
+            activity,
+          })
           Axios.post('https://onflow-queue.herokuapp.com', {
+            recipient: addressRef.current,
             activity,
           })
           return characterProp;
@@ -358,7 +364,10 @@ const ContentReact = () => {
           //   setFile(request.character)
           //   summon();
           // }
-          console.log('get stats message!!', request, request.type === messageConstants.STATS)
+          if (request.type === messageConstants.ADDRESS) {
+            console.log('received address from background', request.address)
+            setAddress(request.address);
+          }
           if (request.type === messageConstants.STATS) {
             console.log('get stats message', request, request.type === messageConstants.STATS)
             setCharacterProp({
@@ -580,10 +589,10 @@ const ContentReact = () => {
   }
 
   useEffect(() => {
-    if(file){
+    if(file && address){
       summon();
     }
-  }, [file])
+  }, [file, address])
 
   return (
     <div className={'react-extension'} style={{zIndex: 9999999999}}>

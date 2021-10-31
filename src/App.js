@@ -46,7 +46,7 @@ function App() {
         if (request.hasOwnProperty('type')) {
           if (request.type === messageConstants.STATS) {
             setCharacterProp({ ...characterProp, stats: { ...characterProp.stats, ...request.stats } })
-            setCharacter(request.stats.htttPetLink)
+            setCharacter(request.stats.httpPetLink)
           }
           // if (request.type === messageConstants.CHARACTERS) {
           //   setCharacters(request.characters)
@@ -73,10 +73,10 @@ function App() {
       <div className="menu top-0 right-0 text-sm transition-all">
         <div className="font-medium mb-2">Cryptochum</div>
         {
-          userAddress ? (
+          userAddress && character ? (
             <>
               <div className="flex -mx-2 items-center mb-2">
-                <div className="w-20 px-2 text-left">fun</div>
+                <div className="w-20 px-2 text-left">happy</div>
                 <div className="flex-1 px-2 h-4 bg-green-50 rounded">
                   <div className="bg-green-500 h-full" style={{ width: characterProp.stats.happy + "%" }}>
                   </div>
@@ -117,7 +117,7 @@ function App() {
                   <div key={character.name} className="w-1/3 flex items-center justify-center px-2 border border-transparent hover:border-blue-300 cursor-pointer transition-none" onClick={() => onItemClick(character)}>
                     <div className="p-1 char-canvas" style={
                       {
-                        backgroundImage: `url(${character.http_link})`,
+                        backgroundImage: `url(${character})`,
                       }
                     }>
                     </div>

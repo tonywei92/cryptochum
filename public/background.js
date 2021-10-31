@@ -41,7 +41,7 @@ let userAddress = ''
 chrome.storage.sync.get(['address'], function(result) {
   userAddress = result.address;
   if(userAddress){
-    sendMessage(messageConstants.ADDRESS, userAddress);
+    sendMessage({type: messageConstants.ADDRESS, address: userAddress});
     fetchInfo(userAddress);
   }
 })
@@ -53,7 +53,7 @@ chrome.runtime.onMessageExternal.addListener(
       chrome.storage.sync.set({address: request.address}, function(){
       })
       userAddress = request.address;
-      sendMessage(messageConstants.ADDRESS, userAddress);
+      sendMessage({type: messageConstants.ADDRESS, address: userAddress});
       fetchInfo();
     }
     console.log('from external', request, sender)
