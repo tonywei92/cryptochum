@@ -1,14 +1,27 @@
 {
-  "name": "My Extension",
+  "name": "CryptoChum",
   "version": "1.0",
   "manifest_version": 2,
   "browser_action": {
     "default_popup": "index.html"
   },
+  "permissions": [
+    "storage"
+  ],
+  "externally_connectable": {
+    "matches": [
+        "*://localhost/*",
+        "*://1d83-18-141-39-249.ngrok.io/*",
+        "*://1d83-18-141-39-249.ngrok.io/",
+        "*://cryptochum-web.vercel.app/",
+        "*://cryptochum-web.vercel.app/*"
+    ]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1iCqeZN0q2QfUQ4ZK9FlDeLJqTOdwHQ/DOYQ2fc+IwrpVtDMnDFFgWfoeeuTj5Jp3xBJ6fQy50jllXeMds2Oap++/TZgxMtoJ6Q3x3EyffH3gBFYyVcyPyvJ/6s9LK72jx+t2QelwekRvbNHndcpONq+442pnKmd9weq6nUwxINxEvkv5dEQ0xmyw680pDTVKb0GTGAO8PMu7TN9YtuTp43Mubg8YP0DlDMYe8wzpR8pwmGZcyK+MbrnNbhW7y0K1zfWOBNXU2MATMlvTp9DF88zu+kwJ30xzyERlWYp9yB6EXVthAg8UvMRb5iEfG20gloM3x1i4yk05rEyFKIGiQIDAQAB",
   "icons": {
-    "16": "head.png",
-    "48": "head.png",
-    "128": "head.png"
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
   },
   "background": {
     "scripts": ["background.js"]

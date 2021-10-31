@@ -7,7 +7,10 @@ const messageConstants = {
   REQUEST_CHARACTER_CURRENT: 'REQUEST_CHARACTER_CURRENT',
   REQUEST_CHARACTERS: 'REQUEST_CHARACTERS',
   STATS: 'STATS',
-  REQUEST_STATS: 'REQUEST_STATS'
+  REQUEST_STATS: 'REQUEST_STATS',
+  REQUEST_ADDRESS: 'REQUEST_ADDRESS',
+  SET_ADDRESS: 'SET_ADDRESS',
+  ADDRESS: 'ADDRESS',
 }
 
 let stats = {
@@ -33,6 +36,32 @@ const sendMessage = (payload) => {
   chrome.runtime.sendMessage(payload);
 }
 
+let userAddress = ''
+
+chrome.storage.sync.get(['address'], function(result) {
+  userAddress = result.address;
+  if(userAddress){
+    sendMessage(messageConstants.ADDRESS, userAddress);
+    fetchInfo(userAddress);
+  }
+})
+
+chrome.runtime.onMessageExternal.addListener(
+  function(request, sender, sendResponse) {
+    if(request.type === messageConstants.SET_ADDRESS){
+      fetchInfo(userAddress);
+      chrome.storage.sync.set({address: request.address}, function(){
+      })
+      userAddress = request.address;
+      sendMessage(messageConstants.ADDRESS, userAddress);
+      fetchInfo();
+    }
+    console.log('from external', request, sender)
+    sendResponse('TESTTT')
+    return true;
+  });
+  
+
 chrome.runtime.onMessage.addListener(function (message, callback) {
   console.log('background', message)
   if (message.hasOwnProperty('type')) {
@@ -49,17 +78,22 @@ chrome.runtime.onMessage.addListener(function (message, callback) {
       sendMessage({type: messageConstants.STATS, stats})
     }
 
-    if (message.type === messageConstants.CHARACTER) {
-      character = message.character;
-    }
+    // if (message.type === messageConstants.CHARACTER) {
+    //   character = message.character;
+    // }
 
     if (message.type === messageConstants.REQUEST_CHARACTER_CURRENT) {
       sendMessage({type: messageConstants.CHARACTER_CURRENT, character});
     }
+
+    if (message.type === messageConstants.REQUEST_ADDRESS) {
+      sendMessage({type: messageConstants.ADDRESS, address: userAddress});
+    }
   }
 });
 
-fetch('https://onflow-queue.herokuapp.com')
+const fetchInfo = (address) => {
+  fetch(`https://onflow-queue.herokuapp.com/${address}`)
   .then(response => response.json())
   .then(data => {
     stats = data;
@@ -67,8 +101,9 @@ fetch('https://onflow-queue.herokuapp.com')
     sendMessage({type: messageConstants.STATS, stats})
   });
 
-fetch('https://tonywei92.github.io/fresh-data/files.json')
-.then(response => response.json())
-.then(data => {
-  characters = data;
-});
+  // fetch('https://tonywei92.github.io/fresh-data/files.json')
+  // .then(response => response.json())
+  // .then(data => {
+  //   characters = data;
+  // });
+}

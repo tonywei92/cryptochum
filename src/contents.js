@@ -15,6 +15,7 @@ const STATE_IDLE = 'idle';
 const STATE_FREEZE = 'freeze';
 const STATE_RUNNING = 'running';
 const STATE_JUMPING = 'jumping';
+const STATE_DESCTRUCTING = 'destructing';
 const DIRECTION_LEFT = 'left';
 const DIRECTION_RIGHT = 'right';
 
@@ -34,6 +35,18 @@ const sendMessage = (payload) => {
   });
 }
 
+const MAX_ELEMENT_SEARCH_DEPTH = 10;
+const MIN_ELEMENT_SEARCH_DEPTH = 5;
+let elements = [];
+for(let i = MAX_ELEMENT_SEARCH_DEPTH; i >= MIN_ELEMENT_SEARCH_DEPTH; i-- ){
+  const elementsTest = document.querySelectorAll(`body ${"> * ".repeat(i) }`);
+  if(elementsTest.length > 0){
+    elements = elementsTest;
+    break;
+  }
+}
+console.log('elements', elements);
+
 const ContentReact = () => {
   const [file, setFile] = useState(null);
   const characterElementRef = useRef();
@@ -42,6 +55,8 @@ const ContentReact = () => {
   const carrotControl = useAnimation()
   const charLoveControls = useAnimation()
   const charEmotionControls = useAnimation()
+  const [destroyedElements, setDestroyedElements] = useState([]);
+  const stealContainer = useRef();
 
   const [characterProp, setCharacterProp, setCharacterPropRef] = useState({
     state: STATE_IDLE,
@@ -56,6 +71,46 @@ const ContentReact = () => {
       hunger: 0,
     }
   });
+  
+  const destructive = async (callback) => {
+    console.log('destructive')
+    setCharacterProp((states) => ({
+      ...states,
+      state: STATE_RUNNING,
+      direction: DIRECTION_RIGHT,
+      message: "I'm stealing!"
+    }));
+    if(elements.length > 0){
+      let el;
+      let elIndex;
+      do{
+        elIndex = Math.floor(Math.random() * elements.length);
+        el = elements[elIndex];
+      }
+      while(destroyedElements.indexOf(elIndex) > 0);
+      console.log('element',elIndex, el)
+      setDestroyedElements([...destroyedElements, elIndex])
+      console.log('stealContainer', stealContainer.current, el)
+      stealContainer.current.appendChild(el);
+      await charControls.start(() => {
+        return {
+          x: -100,
+          transition: {
+            duration: 4,
+          }
+        }
+      })
+      el.remove();
+      await charControls.start(() => {
+        return {
+          x: 0,
+        }
+      })
+    }
+    if (callback && !setCharacterPropRef.current.dragging) {
+      callback();
+    }
+  }
 
   const giveCarrot = async () => {
     throttleSetCharacterProp('EAT', async function(){
@@ -273,13 +328,19 @@ const ContentReact = () => {
     sendMessage({ type: messageConstants.REQUEST_STATS })
     carrotControl.start(() => {
       return {
-        y: -1000,
+        y: -100,
         x: (window.innerWidth / 2) - (carrotElementRef.current.getBoundingClientRect().width / 2),
+      }
+    })
+    charControls.start((custom, current) => {
+      return {
+        ...current,
+        x: -1000,
       }
     })
     showEmotion();
     if (!chrome.runtime) {
-      setFile({ http_link: "https://bafybeiejyfiydin4nz74rtsr5cmakvfbpz4oots2wihjouxsesjnojkiqq.ipfs.dweb.link/a000f0703000000.png" })
+      setFile("https://bafybeiejyfiydin4nz74rtsr5cmakvfbpz4oots2wihjouxsesjnojkiqq.ipfs.dweb.link/a000f0703000000.png")
       summon();
       console.log('currently not running as chrome extension');
       return;
@@ -292,14 +353,14 @@ const ContentReact = () => {
           "from the extension");
 
         if (request.hasOwnProperty('type')) {
-          if (request.type === messageConstants.CHARACTER) {
-            charControls.stop();
-            setFile(request.character)
-            summon();
-          }
-
+          // if (request.type === messageConstants.CHARACTER) {
+          //   charControls.stop();
+          //   setFile(request.character)
+          //   summon();
+          // }
+          console.log('get stats message!!', request, request.type === messageConstants.STATS)
           if (request.type === messageConstants.STATS) {
-            console.log('get stats message', request)
+            console.log('get stats message', request, request.type === messageConstants.STATS)
             setCharacterProp({
               ...setCharacterPropRef.current,
               stats: {
@@ -307,6 +368,8 @@ const ContentReact = () => {
                 ...request.stats,
               }
             })
+
+            setFile(request.stats.httpPetLink)
           }
 
           if (request.type === messageConstants.GIVE_CARROT) {
@@ -319,8 +382,18 @@ const ContentReact = () => {
   const animDrop = async (callback) => {
     await charControls.start((custom, current) => ({
       ...current,
-      x: 0,
+      y: -100,
+      x: (window.innerWidth / 2) - (carrotElementRef.current.getBoundingClientRect().width / 2),
+      transition: {
+        duration:0.0001,
+      }
+    }))
+    await charControls.start((custom, current) => ({
+      ...current,
       y: window.innerHeight - characterElementRef.current.getBoundingClientRect().height,
+      transition: {
+        duration: 1,
+      }
     }))
 
     await charControls.start((custom, current) => {
@@ -443,7 +516,6 @@ const ContentReact = () => {
     //     }
     //   }
     // })
-    console.log('jumping !setCharacterPropRef.current.dragging', setCharacterPropRef.current.dragging)
     if (callback && !setCharacterPropRef.current.dragging) {
       callback();
     }
@@ -478,7 +550,11 @@ const ContentReact = () => {
 
   const randomBehaviour = () => {
     const states = [STATE_IDLE, STATE_JUMPING, STATE_RUNNING];
-    const state = states[Math.floor(Math.random() * states.length)];
+    console.log('characterProp.stats.happy',setCharacterPropRef.current.stats.happy,setCharacterPropRef.current.stats.happy < 50, )
+    if(setCharacterPropRef.current.stats.happy < 50){
+      states.push(STATE_DESCTRUCTING, STATE_DESCTRUCTING, STATE_DESCTRUCTING, STATE_DESCTRUCTING)
+    }
+    const state = states[Math.floor(Math.random() * (states.length-1))];
     switch (state) {
       case STATE_JUMPING:
         animJumping(() => animIdling(randomBehaviour));
@@ -488,8 +564,11 @@ const ContentReact = () => {
         animRunning(() => animIdling(randomBehaviour));
         // animJumping(randomBehaviour);
         break;
+      case STATE_DESCTRUCTING:
+        destructive(() => animIdling(randomBehaviour))
+        break;
       default:
-        animIdling(randomBehaviour);
+        animIdling(() => randomBehaviour());
         // animJumping(randomBehaviour);
         break;
     }
@@ -500,9 +579,16 @@ const ContentReact = () => {
     animDrop(randomBehaviour);
   }
 
+  useEffect(() => {
+    if(file){
+      summon();
+    }
+  }, [file])
+
   return (
-    <div className={'react-extension'}>
+    <div className={'react-extension'} style={{zIndex: 9999999999}}>
       <div className="menu top-0 right-0 text-sm transition-all hidden">
+        <button onClick={destructive} className="rounded px-3 py-2 bg-blue-200 border border-blue-400">Destruct</button>
         <button onClick={summon} className="rounded px-3 py-2 bg-blue-200 border border-blue-400">Summon char</button>
         <button onClick={giveCarrot} className="rounded px-3 py-2 bg-blue-200 border border-blue-400">Give carrot</button>
         <div className="flex items-center mb-2">
@@ -526,7 +612,7 @@ const ContentReact = () => {
         <div style={{ position: 'relative' }} ref={characterElementRef}>
           {file && <div onMouseMove={touchCharacter} className={`char-canvas-large char-canvas-large__${characterProp.state} ${characterProp.direction === DIRECTION_LEFT ? '-scale-x-1' : ''}`} style={
             {
-              backgroundImage: `url(${file.http_link})`,
+              backgroundImage: `url(${file})`,
             }
           }></div>}
           <motion.span className="absolute" animate={charEmotionControls} style={{ width: '80px', top: "-28px", right: '-50px' }}>
@@ -538,6 +624,8 @@ const ContentReact = () => {
             </div>
           </motion.span>
           <motion.span className="absolute" animate={charLoveControls} style={{ top: 0, left: 0, opacity: 0 }}>❤️</motion.span>
+        </div>
+        <div ref={stealContainer} className="fixed bottom-10 left-16">
         </div>
       </motion.div>
     </div>
