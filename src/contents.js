@@ -182,7 +182,7 @@ const ContentReact = () => {
           
           const characterProp = {
             ...states,
-            feeling: (states.stats.happy + 1) > 50 ? FEELING_HAPPY : FEELING_SAD,
+            feeling: (states.stats.happy + 1) > 50 && (states.stats.hunger + 1) > 50 ? FEELING_HAPPY : FEELING_SAD,
             stats: {
               ...states.stats,
               happy,
@@ -558,9 +558,10 @@ const ContentReact = () => {
   }
 
   const randomBehaviour = () => {
-    const states = [STATE_IDLE, STATE_JUMPING, STATE_RUNNING];
+    const states = [STATE_IDLE, STATE_JUMPING, STATE_RUNNING, STATE_RUNNING, STATE_RUNNING];
     console.log('characterProp.stats.happy',setCharacterPropRef.current.stats.happy,setCharacterPropRef.current.stats.happy < 50, )
-    if(setCharacterPropRef.current.stats.happy < 50){
+    console.log('happiness', setCharacterPropRef.current.stats.happy, setCharacterPropRef.current.stats.hunger)
+    if(setCharacterPropRef.current.stats.happy < 50 || setCharacterPropRef.current.stats.hunger < 50){
       states.push(STATE_DESCTRUCTING, STATE_DESCTRUCTING, STATE_DESCTRUCTING, STATE_DESCTRUCTING)
     }
     const state = states[Math.floor(Math.random() * (states.length-1))];
